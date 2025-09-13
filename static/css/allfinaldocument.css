@@ -1,0 +1,114 @@
+/* General Page Styles */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #e0f7fa, #fce4ec);
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.container {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  margin-top: 40px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Navbar Styling */
+.navbar {
+  background: #090e6c;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #007acc;
+  color: #fff;
+  text-align: center;
+}
+
+thead input {
+  background: #e8f4fd;
+}
+
+.table-striped tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table-striped tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Download Button */
+.btn-download,
+.btn-success {
+  background-color: #28a745;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-download:hover,
+.btn-success:hover {
+  background-color: #218838;
+}
+
+/* Responsive Input Styling */
+input.filter-input {
+  font-size: 0.85rem;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Headings */
+h2 {
+  font-size: 1.8rem;
+  color: #003366;
+  font-weight: bold;
+  border-bottom: 2px solid #007acc;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+/* Footer (Optional) */
+footer {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #999;
+}
+#globalSearch {
+  border: 2px solid #003366;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  width: 300px; /* fixed width for better alignment */
+  transition: box-shadow 0.3s ease;
+}
+
+#globalSearch:focus {
+  box-shadow: 0 0 8px #007bff;
+  outline: none;
+}

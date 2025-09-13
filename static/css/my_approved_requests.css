@@ -1,0 +1,204 @@
+/* ===== Global Styles ===== */
+body {
+  background: linear-gradient(120deg, #ddeaf7, #d5f9f9);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #343a40;
+  margin: 0;
+}
+.navbar {
+  background: #0d1493;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar .logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.navbar ul li a:hover {
+  color: #0d6efd;
+}
+
+.navbar .btn {
+  background: #0d6efd;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-left: 20px;
+  transition: 0.3s;
+}
+
+.navbar .btn:hover {
+  background: #0b5ed7;
+}
+
+/* Layout */
+.navbar-container {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Container Fix */
+.container {
+  padding: 10px;
+}
+
+.containertab {
+  margin: 40px auto;
+  max-width: 1000px;
+  padding: 15px;
+}
+
+/* ===== Card Styles ===== */
+.card {
+  border-radius: 20px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  margin-bottom: 2rem;
+  border: none;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 16px 35px rgba(0, 0, 0, 0.18);
+}
+
+.card-header {
+  background: linear-gradient(90deg, #100374, #3b5998);
+  color: white;
+  text-align: center;
+  border-radius: 20px 20px 0 0;
+  padding: 1.25rem 0;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* ===== Form Styles ===== */
+.form-label {
+  font-weight: 600;
+  color: #003366;
+}
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #100374;
+  box-shadow: 0 0 0 0.2rem rgba(16, 3, 116, 0.25);
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+/* Required field asterisk */
+.required::after {
+  content: " *";
+  color: red;
+}
+
+/* ===== Button Styles ===== */
+.btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #100374;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #2e0cb8;
+}
+
+.btn-success {
+  background: #198754;
+  border: none;
+}
+
+.btn-success:hover {
+  background: #157347;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+/* ===== Table Styles ===== */
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  padding: 14px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.table tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+
+.table tbody tr:hover {
+  background-color: #eef3fc;
+  transition: background 0.2s ease;
+}

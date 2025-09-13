@@ -1,0 +1,384 @@
+:root {
+    --primary-color: #A91D3A;      /* Deep Red */
+    --secondary-color: #87CEEB;    /* Sky Blue */
+    --accent-color: #A91D3A;       /* Deep Red */
+    --light-gray: #f8f9fa;
+    --dark-gray: #343a40;
+    --success-color: #A91D3A;      /* Deep Red for success actions */
+    --danger-color: #A91D3A;       /* Deep Red for danger actions */
+    --warning-color: #ffc107;      /* Yellow for warnings */
+    --info-color: #87CEEB;         /* Sky Blue for info */
+    --font-family: 'Segoe UI', sans-serif;
+    --border-radius: 0.75rem;
+    --box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+body {
+    background: linear-gradient(-45deg, #f9e9ec, #f9f9f9, #f9e9ec, #f9f9f9);
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
+    font-family: var(--font-family);
+    padding-top: 70px; /* For fixed navbar */
+    color: var(--dark-gray);
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Navbar */
+.smart-nav, .navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.navbar-brand img {
+    /* Invert color to white for dark navbar and add shadow */
+    filter: brightness(0) invert(1) drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+    transition: transform 0.3s ease-in-out;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05); /* Slightly enlarges the logo on hover */
+}
+
+.navbar .nav-link, .navbar .navbar-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+}
+
+.navbar .nav-link:hover, .navbar .navbar-text strong {
+    color: #fff !important;
+}
+
+.navbar .btn-light {
+    font-weight: 600;
+}
+
+/* Main Content & Cards */
+main.container-fluid {
+    padding: 2rem;
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 2rem;
+    background-color: #ffffff;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
+    padding: 0.8rem 1.2rem; /* Reduced padding for a smarter look */
+    font-size: 1.05rem; /* Slightly smaller font */
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: 0.4rem; /* Slightly less rounded for a smarter look */
+    padding: 0.35rem 0.75rem; /* Reduced padding for a shorter, more compact field */
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #ced4da; /* A slightly more visible, but still soft, border */
+    font-size: 0.9rem; /* Smaller font for a smarter look */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(135, 206, 235, 0.5); /* Using sky blue from theme for a soft glow */
+}
+
+label.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-primary, .btn-success {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+    font-weight: bold;
+}
+.btn-primary:hover, .btn-success:hover {
+    background-color: #8a172e !important; /* Darker red */
+    border-color: #8a172e !important;
+}
+
+.btn-danger {
+    background-color: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+    color: white !important;
+}
+.btn-danger:hover {
+    background-color: #8a172e !important;
+    border-color: #8a172e !important;
+}
+
+.btn-info {
+    background-color: var(--info-color) !important;
+    border-color: var(--info-color) !important;
+    color: white !important;
+}
+.btn-info:hover {
+    background-color: #65a9d1 !important; /* Darker Sky Blue */
+    border-color: #65a9d1 !important;
+}
+.btn-warning {
+    background-color: var(--warning-color) !important;
+    border-color: var(--warning-color) !important;
+    color: #212529 !important; /* Dark text for yellow background */
+}
+.btn-warning:hover {
+    background-color: #e0a800 !important; /* Darker Yellow */
+    border-color: #d39e00 !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Tables */
+.table-container {
+    max-height: 75vh;
+    overflow: auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    background-color: #fff;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--primary-color) !important;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    padding: 0.2rem 0.75rem; /* Minimal vertical padding for shorter rows */
+    font-size: 0.7rem; /* Smaller font for a compact look */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 0.2rem 0.75rem; /* Minimal vertical padding for shorter rows */
+    font-size: 0.8rem; /* Smaller font for data */
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(135, 206, 235, 0.2); /* Light Sky Blue on hover */
+    cursor: pointer;
+}
+
+/* Smaller badges and buttons inside tables for a compact view */
+.table .badge {
+    padding: 0.25em 0.5em;
+    font-size: 0.7rem;
+}
+.table .btn-sm {
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
+}
+.table .form-select-sm {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Flash Messages */
+.flash-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1056; /* Above most elements */
+    width: 350px;
+}
+
+/* Back button */
+.back-button {
+    font-weight: 600;
+    color: var(--secondary-color);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+.back-button:hover {
+    color: var(--primary-color);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #666;
+    font-size: 0.9rem;
+    background-color: var(--light-gray);
+    margin-top: 2rem;
+}
+
+/* Multi-step Form Progress Bar */
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px; /* More space for labels */
+    position: relative;
+}
+
+.progress-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 4px;
+    width: 100%;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.progress-bar-line {
+    position: absolute;
+    top: 50%; 
+    left: 0;
+    transform: translateY(-50%);
+    height: 4px;
+    background-color: var(--accent-color);
+    z-index: 2;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+.progress-step {
+    position: relative;
+    z-index: 3;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 3px solid #e0e0e0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.4s ease;
+}
+
+.progress-step.active {
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+.progress-step-label {
+    position: absolute;
+    top: 50px;
+    font-size: 0.8rem;
+    color: #666;
+    width: 100px;
+    text-align: center;
+}
+
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Theme Specific Overrides */
+.table-primary {
+    --bs-table-bg: var(--primary-color);
+    --bs-table-border-color: #8a172e;
+    color: white;
+}
+
+.table-light {
+    --bs-table-color: var(--primary-color);
+    --bs-table-bg: #fdf5f6;
+}
+
+.bg-primary, .badge.bg-success, .badge.bg-danger {
+    background-color: var(--primary-color) !important;
+}
+.bg-info {
+    background-color: var(--info-color) !important; /* This is for info */
+}
+.badge.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important; 
+}
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.accordion-button:not(.collapsed) {
+    color: white;
+    background-color: var(--primary-color);
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(135, 206, 235, 0.5);
+}
+
+.form-step h5 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 8px; /* Reduced padding */
+    margin-bottom: 15px; /* Reduced margin */
+}

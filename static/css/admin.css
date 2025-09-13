@@ -1,0 +1,73 @@
+body {
+  background-color: #f4f6f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar Styling */
+.navbar {
+  background: #0d1493;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-brand,
+.nav-link,
+.navbar-text {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+/* Main Heading */
+.container h2 {
+  color: #343a40;
+  font-weight: 600;
+}
+
+/* Table Enhancements */
+.table thead {
+  background-color: #2905a1;
+  color: white;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+/* Buttons */
+.btn-success {
+  background-color: #198754;
+  border: none;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transition: 0.3s ease;
+}
+
+/* Form Select Styling */
+select.form-select {
+  min-width: 120px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+}
+
+/* Footer */
+footer {
+  margin-top: 40px;
+  padding: 10px;
+  background-color: #e9ecef;
+  color: #6c757d;
+  font-size: 0.9rem;
+}

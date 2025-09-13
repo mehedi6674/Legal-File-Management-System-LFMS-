@@ -1,0 +1,366 @@
+/* General Styles */
+body {
+  background: linear-gradient(120deg, #ddeaf7, #d5f9f9);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #343a40; /* Default text color */
+}
+h2 {
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #0d6efd;
+    }
+
+    .table-container {
+      max-height: 70vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid #dee2e6;
+      background: white;
+      box-shadow: 0 0 10px rgba(157, 102, 245, 0.05);
+      border-radius: 8px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #343a40;
+      color: white;
+      z-index: 11; /* above filter inputs */
+      white-space: nowrap;
+    }
+
+    thead tr.filter-row th {
+      position: sticky;
+      top: 38px; /* height of first header row */
+      background: #495057;
+      z-index: 10;
+      padding: 2px;
+    }
+
+    table {
+      min-width: 1800px;
+    }
+
+    td, th {
+      white-space: nowrap;
+      vertical-align: middle !important;
+    }
+
+    .alert {
+      margin-top: 1rem;
+    }
+
+    .filter-input {
+      width: 100%;
+      padding: 2px;
+      font-size: 12px;
+      box-sizing: border-box;
+      border-radius: 3px;
+      border: 1px solid #ced4da;
+      background: white;
+      color: #212529;
+    }
+
+    .search-bar {
+      margin-bottom: 10px;
+      text-align: end;
+    }
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  
+  padding: 10px;
+}
+
+.section-title {
+  color: #003366;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #003366;
+  padding-bottom: 0.75rem;
+  transition: color 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Styles */
+.card {
+  border-radius: 25px;
+  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  margin-bottom: 2.5rem;
+  border: none;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0px 18px 35px rgba(0, 0, 0, 0.18);
+}
+
+.card-header {
+  background-color: #100374; /* Match Navbar color */
+  color: white;
+  text-align: center;
+  border-radius: 25px 25px 0 0;
+  padding: 1.5rem 0;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  box-shadow: 0px 4px 7px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 1.75rem;
+}
+
+/* Table Styles */
+.table {
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 2rem; /* Spacing between the table and other elements */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.table thead th {
+  background-color: #e9ecef;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  padding: 14px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #495057;  /* Slightly darker text in header */
+}
+
+.table tbody tr:nth-of-type(even) {
+  background-color: #f2f2f2; /* Subtle zebra striping */
+}
+
+.table td, .table th {
+  padding: 14px; /* Increased padding */
+  vertical-align: middle; /* Vertically center the content */
+  border-color: #dee2e6; /* More subtle border */
+  font-size: 1rem; /* Slightly larger font size */
+}
+
+/*  Attachments & Feedback */
+.list-group-item {
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.07); /* Subtle shadow */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  border: none;  /* Remove default border */
+}
+
+.list-group-item:hover {
+  background-color: #f4f4f4;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.attachment-link {
+  color: #17a2b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.attachment-link:hover {
+  color: #138496;
+  text-decoration: underline;
+}
+
+/* Status Badges (More visually distinct) */
+.badge {
+    font-size: 1rem; /* Slightly larger font size */
+    padding: 0.7em 1em;
+    border-radius: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.badge.bg-secondary { background-color: #6c757d; color: white;}
+.badge.bg-primary { background-color: #007bff; color: white;}
+.badge.bg-success { background-color: #28a745; color: white;}
+.badge.bg-danger { background-color: #dc3545; color: white;}
+.badge.bg-warning { background-color: #ffc107; color: #212529; }
+.badge.bg-info { background-color: #17a2b8; color: white; } /* teal info */
+
+
+/* Accordion */
+.accordion-button {
+  background-color: #f0f0f0; /* Light background */
+  color: #333;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.07);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 500;
+  padding: 1.1rem 1.25rem;
+}
+
+.accordion-button:hover {
+  background-color: #e0e0e0;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #007bff;
+  color: white;
+  box-shadow: none;
+}
+
+.accordion-body {
+  padding: 1.25rem;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Buttons (Styling similar to new request form) */
+.btn {
+  border-radius: 12px;
+  padding: 0.85rem 1.75rem;
+  font-size: 1.05rem;
+  transition: all 0.25s ease-in-out; /* Slightly longer transition */
+  border: none; /* Remove default button border */
+  cursor: pointer;
+  font-weight: 600; /* Bolder font */
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.12);
+  letter-spacing: 0.6px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.18);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.18);
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.18);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.18);
+}
+
+/* Print Button */
+.btn-outline-primary {
+    border-color: #007bff;
+    color: #007bff;
+    transition: all 0.2s ease-in-out; /* Smooth transition for button */
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Input Field Zoom Effect */
+.form-control {
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus,
+.form-control:hover {
+  transform: scale(1.02); /* Zoom on hover and focus */
+  box-shadow: 0 0 0 0.2rem rgba(16, 3, 116, 0.25); /*  Subtle focus shadow */
+  z-index: 1; /* Ensure the zoomed element appears above other content */
+}
+
+
+/*  Responsive Design (adjust as needed) */
+@media (max-width: 768px) {
+  .container {
+    padding: 18px; /* Less padding on smaller screens */
+  }
+  .section-title {
+    font-size: 1.9rem;
+    margin-bottom: 1.2rem;
+  }
+  .table thead th, .table td {
+    padding: 10px; /* Less padding on smaller screens */
+    font-size: 0.95rem;
+  }
+  .btn {
+      padding: 0.7rem 1.4rem;
+      font-size: 0.95rem;
+  }
+}
+
+/* Navbar (Keep this style as it is from your original, unless you'd like to modify it) */
+.navbar {
+  background: #0d1493;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+textarea.form-control {
+    border-radius: 10px;
+}
+
+footer {
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+    margin: 2rem 0;
+}
+
+/* Multi-step form */
+.form-step {
+  display: none;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+.form-step.active {
+  display: block;
+  animation: slideIn 0.5s ease-in-out; /* Animation for sliding in */
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px); /* Slide from right */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
