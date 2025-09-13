@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}New NDA Request - LFMS{% endblock %}
+
+{% block head %}
+<style>
+  .required::after {
+    content: " *";
+    color: red;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h4>New Non-Disclosure Agreement (NDA) Request</h4>
+      </div>
+      <div class="card-body p-4">
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar-line" id="progressBar"></div>
+          <div class="progress-step active" data-step="1">
+            <span class="progress-step-label">Details</span>1
+          </div>
+          <div class="progress-step" data-step="2">
+            <span class="progress-step-label">Terms</span>2
+          </div>
+          <div class="progress-step" data-step="3">
+            <span class="progress-step-label">Clauses</span>3
+          </div>
+          <div class="progress-step" data-step="4">
+            <span class="progress-step-label">Submit</span>4
+          </div>
+        </div>
+
+        <form id="multiStepForm" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+          <!-- Step 1: Basic Info -->
+          <div class="form-step active">
+            <h5>Request Details</h5>
+            <div class="mb-3">
+              <label for="type_of_the_agreement" class="form-label">Type of Agreement</label>
+              <select id="type_of_the_agreement" name="type_of_the_agreement" class="form-select" required>
+                
+                <option value="nda">NDA</option>
+                
+              </select>
+              <div class="invalid-feedback">Please choose an agreement type.</div>
+            </div>
+            <div class="mb-3">
+              <label for="name_of_the_other_parties" class="form-label required">Agreement With (Parties Name)</label>
+              <input id="name_of_the_other_parties" maxlength="100" name="name_of_the_other_parties" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="document_type" class="form-label required">Type of Organization</label>
+              <select id="document_type" name="document_type" class="form-select" required>
+                <option value="" disabled selected>Select</option>
+                <option value="sole_proprietorship">Sole Proprietorship</option>
+                <option value="individual">Individual</option>
+                <option value="partnership">Partnership</option>
+                <option value="private_limited">Private Limited</option>
+                <option value="public_limited">Public Limited</option>
+                <option value="foreign">Foreign</option>
+                <option value="government">Government</option>
+              </select>
+              <div class="invalid-feedback">Please choose Type of Organization</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="Partys_tpdd_status" class="form-label required">Party’s TPDD Status</label>
+              <select id="Partys_tpdd_status" name="Partys_tpdd_status" class="form-select" required >
+                <option value="" disabled selected>Select</option>
+                <option value="done">Done</option>
+                <option value="not_done">Not Done</option>
+                <option value="not_required">Not Required</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="request_title" class="form-label required">Purpose of the Agreement</label>
+              <input id="request_title" maxlength="100" name="request_title" class="form-control" required />
+              <div class="invalid-feedback">Please enter Purpose of the Agreement</div>
+            </div>
+           
+            <div class="mb-3">
+              <label for="scope_of_work" class="form-label required">Scope of Work</label>
+              <textarea id="scope_of_work" maxlength="100" name="scope_of_work" class="form-control" rows="2" required ></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="details_attachment" class="form-label required"><strong>Add Details in Attachments</strong></label>
+              <ul class="list-unstyled small text-muted ps-3">
+                  <li>- List of works to be performed</li>
+                  <li>- Work Schedule if any</li>
+                  <li>- Performed by</li>
+                  <li>- And others information</li>
+                  <li>- Any other Special Clause, if required</li>
+              </ul>
+              <p class="small text-danger fw-bold ps-3">Please provide all required information in a single MS Word (.docx) file.</p>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-file-earmark-word-fill"></i></span>
+                <input type="file" class="form-control" id="details_attachment" name="details_attachment" accept=".docx" required />
+              </div>
+              <div class="form-text">You can attach a file with detailed information here.</div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-primary next-step">Next</button>
+            </div>
+          </div> 
+
+          <!-- Step 2: Agreement Details -->
+           
+          <div class="form-step">
+            <h5>Terms of the Agreement</h5>
+         
+            <div class="row">
+              
+              <div class="col-md-6 mb-3">
+                <label for="effective_date" class="form-label required">Effective Date</label>
+                <input type="date" id="effective_date" name="effective_date" class="form-control" required/>
+              </div>
+            
+          
+            <div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="tenure_value" class="form-label required">Tenure (months)</label>
+        <input type="number" id="tenure_value" name="tenure_value" class="form-control" min="0" required/>
+    </div>
+</div>
+<div class="row">
+    <div class="mb-3">
+        <label for="document_value" class="form-label required"></label>
+        <input type="number" id="document_value" name="document_value" class="form-control" step="0.01" min="0" required value="1" hidden readonly/>
+        <div class="invalid-feedback">Please enter the value.</div>
+    </div>
+</div>
+
+<script>
+    // Get the input elements for the first calculation
+    const amountToBePaidInput = document.getElementById('amount_to_be_paid');
+    const aitInput = document.getElementById('ait');
+    const vatInput = document.getElementById('vat');
+    const totalAmountInput = document.getElementById('total_amount_including_vat_and_tax');
+
+    // Get the input elements for the second calculation
+    const tenureInput = document.getElementById('tenure_value');
+    const paymentFrequencyInput = document.getElementById('payment_frequency');
+    const documentValueInput = document.getElementById('document_value');
+
+    // Function to calculate and update the total amount
+    function updateTotal() {
+        const amountToBePaid = parseFloat(amountToBePaidInput.value) || 0;
+        const ait = parseFloat(aitInput.value) || 0;
+        const vat = parseFloat(vatInput.value) || 0;
+        const totalAmount = amountToBePaid + ait + vat;
+        totalAmountInput.value = totalAmount.toFixed(2);
+        // Trigger document value calculation whenever the total changes
+        updateDocumentValue();
+    }
+
+    // Function to calculate and update the document value
+    function updateDocumentValue() {
+        const totalAmount = parseFloat(totalAmountInput.value) || 0;
+        const tenure = parseInt(tenureInput.value) || 0;
+        const paymentFrequency = paymentFrequencyInput.value;
+
+        let frequencyDivisor = 0;
+        switch (paymentFrequency) {
+            case 'monthly':
+                frequencyDivisor = 1;
+                break;
+            case 'quarterly':
+                frequencyDivisor = 3;
+                break;
+            case 'half_yearly':
+                frequencyDivisor = 6;
+                break;
+            case 'yearly':
+                frequencyDivisor = 12;
+                break;
+            case 'once_in_agreement_period':
+                frequencyDivisor = tenure; // This simplifies the calculation to just the total amount
+                break;
+            case 'twice_in_agreement_period':
+                frequencyDivisor = tenure / 2;
+                break;
+            default:
+                frequencyDivisor = 0;
+        }
+
+        let documentValue = 0;
+        if (totalAmount > 0 && tenure > 0 && frequencyDivisor > 0) {
+             if (paymentFrequency === 'once_in_agreement_period') {
+                documentValue = totalAmount * tenure;
+            } else if (paymentFrequency === 'twice_in_agreement_period') {
+                documentValue = totalAmount * (tenure / 2) * 2; // Total for half the period, paid twice
+            }
+            else {
+                documentValue = (totalAmount * tenure) / frequencyDivisor;
+            }
+        }
+        
+        documentValueInput.value = documentValue.toFixed(2);
+    }
+
+    // Add event listeners to trigger the total calculation
+    amountToBePaidInput.addEventListener('input', updateTotal);
+    aitInput.addEventListener('input', updateTotal);
+    vatInput.addEventListener('input', updateTotal);
+
+    // Add event listeners to trigger the document value calculation
+    tenureInput.addEventListener('input', updateDocumentValue);
+    paymentFrequencyInput.addEventListener('change', updateDocumentValue);
+
+</script>
+              
+              
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary prev-step">Previous</button>
+              <button type="button" class="btn btn-primary next-step">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Termination & Clauses -->
+          <div class="form-step">
+            <h5>Termination </h5>
+            <div class="mb-3">
+              <label for="termination_notice_period" class="form-label required">Termination Notice Period (Days)</label>
+              <input type="number" maxlength="3" id="termination_notice_period" name="termination_notice_period" class="form-control" rows="2" required/>
+            </div>
+            <div class="mb-3">
+              <label for="consequences_of_termination" class="form-label required">Consequences of Termination</label>
+              <textarea id="consequences_of_termination" maxlength="100" name="consequences_of_termination" class="form-control" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="assets_to_be_returned" class="form-label">Assets to be Returned</label>
+              <textarea id="assets_to_be_returned" maxlength="100" name="assets_to_be_returned" class="form-control" rows="2"></textarea>
+            </div>
+            <h5>Notice </h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="name_of_the_notice_receivers"  class="form-label required">Notice Receiver Names</label>
+                <textarea id="name_of_the_notice_receivers" maxlength="30" name="name_of_the_notice_receivers" class="form-control" rows="2" required></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="designations_of_receivers"  class="form-label required">Designations of Receivers</label>
+                <textarea id="designations_of_receivers" maxlength="30" name="designations_of_receivers" class="form-control" rows="2" required></textarea>
+              </div>
+              <div class="mb-3">
+    <label for="notice_receiver_mobile_no" class="form-label">Notice Receiver Mobile No.</label>
+    <input type="tel" id="notice_receiver_mobile_no" maxlength="11" name="notice_receiver_mobile_no" class="form-control">
+</div>
+<div class="mb-3">
+    <label for="notice_receiver_email" class="form-label">Notice Receiver Email</label>
+    <input type="email" id="notice_receiver_email" maxlength="35" name="notice_receiver_email" class="form-control">
+</div>
+<div class="mb-3">
+    <label for="notice_receiver_address" class="form-label">Notice Receiver Address</label>
+    <textarea id="notice_receiver_address" maxlength="100" name="notice_receiver_address" class="form-control" rows="2"></textarea>
+</div>
+            </div>
+            <!-- Exclusivity Section -->
+<div class="mb-3">
+    <label for="exclusivity_selection" class="form-label">Exclusivity?</label>
+    <select id="exclusivity_selection" name="exclusivity_selection" class="form-control">
+        <option value="No" selected>No</option>
+        <option value="Yes">Yes</option>
+    </select>
+
+    <!-- This div contains the textarea and is initially hidden -->
+    <div id="exclusivity_details_div" style="display: none; margin-top: 15px;">
+        <label for="exclusivity" class="form-label">Exclusivity Details</label>
+        <textarea id="exclusivity" maxlength="100" name="exclusivity" class="form-control" rows="2"></textarea>
+    </div>
+</div>
+
+<!-- Goal Sheet Section -->
+<div class="mb-3">
+    <label for="goal_sheet_selection" class="form-label">Goal Sheet?</label>
+    <select id="goal_sheet_selection" name="goal_sheet_selection" class="form-control">
+        <option value="No" selected>No</option>
+        <option value="Yes">Yes</option>
+    </select>
+
+    <!-- This div contains the textarea and is initially hidden -->
+    <div id="goal_sheet_details_div" style="display: none; margin-top: 15px;">
+        <label for="goal_sheet" class="form-label">Goal Sheet Details</label>
+        <textarea id="goal_sheet" maxlength="100" name="goal_sheet" class="form-control" rows="2"></textarea>
+    </div>
+</div>
+
+<!-- JavaScript to control visibility -->
+<script>
+// This script should be placed at the bottom of your HTML page, right before the closing </body> tag.
+document.addEventListener('DOMContentLoaded', function() {
+
+    /**
+     * A reusable function to set up a conditional input field.
+     * @param {string} selectionId - The ID of the Yes/No <select> element.
+     * @param {string} detailsDivId - The ID of the <div> to show/hide.
+     * @param {string} inputId - The ID of the input/textarea inside the div to clear.
+     */
+    function setupConditionalField(selectionId, detailsDivId, inputId) {
+        const selectionElement = document.getElementById(selectionId);
+        const detailsDivElement = document.getElementById(detailsDivId);
+        const inputElement = document.getElementById(inputId);
+
+        // Ensure all elements exist before adding an event listener
+        if (selectionElement && detailsDivElement && inputElement) {
+            selectionElement.addEventListener('change', function() {
+                if (this.value === 'Yes') {
+                    // If 'Yes' is selected, show the details div
+                    detailsDivElement.style.display = 'block';
+                } else {
+                    // If 'No' is selected, hide the details div and clear its content
+                    detailsDivElement.style.display = 'none';
+                    inputElement.value = ''; // Clear the value to prevent submitting old data
+                }
+            });
+        }
+    }
+
+    // Initialize the logic for the Exclusivity field
+    setupConditionalField('exclusivity_selection', 'exclusivity_details_div', 'exclusivity');
+
+    // Initialize the logic for the Goal Sheet field
+    setupConditionalField('goal_sheet_selection', 'goal_sheet_details_div', 'goal_sheet');
+
+});
+</script>
+            <div class="mb-3">
+              <label for="any_other_special_clause" class="form-label">Any Other Special Clause</label>
+              <textarea id="any_other_special_clause" name="any_other_special_clause" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary prev-step">Previous</button>
+              <button type="button" class="btn btn-primary next-step">Next</button>
+            </div>
+          </div>
+          
+          <!-- Step 4: Attachments & Submit -->
+          <div class="form-step">
+            <h5>Attachments & Submit</h5>
+            <div class="mb-3">
+              <label class="form-label">Instructions & Document Upload</label>
+              <p>Please upload all the required documents in a single file. The necessary documents vary based on your organization type. Please refer to the following list to gather the appropriate documents before uploading:</p>
+              <div class="document-requirements mb-3 p-3 border rounded">
+                <p><strong>Required Documents by Organization Type:</strong></p>
+                  <ul class="list-group list-group-flush mt-2">
+                    <li class="list-group-item">
+                      <b>I. Sole Proprietorship/Individual:</b>
+                      <ul>
+                        <li>NID</li>
+                        <li>Trade License</li>
+                        <li>TIN</li>
+                        <li>VAT Registration Certificate (if any)</li>
+                        <li>Service-related Documents (If any)</li>
+                        <li>Others (If any)</li>
+                      </ul>
+                    </li>
+                    <li class="list-group-item">
+                      <b>II. Partnership:</b>
+                      <ul>
+                        <li>NID of the partners</li>
+                        <li>Trade License</li>
+                        <li>TIN</li>
+                        <li>VAT Registration Certificate</li>
+                        <li>Service-related Documents (If any)</li>
+                        <li>Others (If any)</li>
+                      </ul>
+                    </li>
+                    <li class="list-group-item">
+                      <b>III. Private Limited/Public Limited:</b>
+                      <ul>
+                        <li>Certificate of Incorporation</li>
+                        <li>Memorandum of Association (MOA)</li>
+                        <li>Article of Association (AOA)</li>
+                        <li>Form XII</li>
+                        <li>Schedule X</li>
+                        <li>Trade License</li>
+                        <li>TIN</li>
+                        <li>VAT Registration Certificate</li>
+                        <li>Service-related Documents (If any)</li>
+                        <li>Others (If any)</li>
+                      </ul>
+                    </li>
+                    <li class="list-group-item">
+                      <b>IV. Foreign:</b>
+                      <ul>
+                        <li>Supporting Documents</li>
+                        <li>Permission to Work in Bangladesh</li>
+                      </ul>
+                    </li>
+                    <li class="list-group-item">
+                      <b>V. Government:</b>
+                      <ul>
+                        <li>(Please specify any additional documents required)</li>
+                      </ul>
+                    </li>
+                    <li class="list-group-item">
+                      <b>VI. Others:</b>
+                      <ul>
+                        <li>(Please specify any additional documents required)</li>
+                      </ul>
+                    </li>
+                  </ul>
+              </div>
+              <p class="text-danger fw-bold">PLEASE ATTACH ALL REQUIRED DOCUMENTS</p>
+
+              <div id="supporting-documents-container-nda">
+                <div class="input-group mb-2">
+                  <input type="file" class="form-control" name="supporting_documents" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                </div>
+              </div>
+              <button type="button" id="add-document-btn-nda" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-plus-circle-fill"></i> Add More Documents</button>
+
+              <div class="form-text">
+                <p>Note: Please ensure your single uploaded file does not exceed 2MB. Only files with the extensions .pdf, .doc, .docx, .xls, .xlsx, .png, .jpg, and .jpeg are accepted.</p>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary prev-step">Previous</button>
+              <button type="submit" class="btn btn-success">Submit Request</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const steps = document.querySelectorAll(".form-step");
+  const progressSteps = document.querySelectorAll(".progress-step");
+  const progressBar = document.getElementById("progressBar");
+  let currentStep = 0;
+
+  function updateProgress() {
+    progressSteps.forEach((step, idx) => {
+      if (idx < currentStep + 1) {
+        step.classList.add("active");
+      } else {
+        step.classList.remove("active");
+      }
+    });
+
+    const activeSteps = document.querySelectorAll(".progress-step.active");
+    const width = ((activeSteps.length - 1) / (progressSteps.length - 1)) * 100;
+    progressBar.style.width = width + "%";
+  }
+
+  function showStep(stepIndex) {
+    steps.forEach((step, index) => {
+      step.classList.toggle("active", index === stepIndex);
+    });
+    currentStep = stepIndex;
+    updateProgress();
+  }
+
+  document.querySelectorAll(".next-step").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const current = steps[currentStep];
+      const inputs = current.querySelectorAll("input[required], select[required], textarea[required]");
+
+      let allValid = true;
+      inputs.forEach(input => {
+        if (!input.checkValidity()) {
+          // Use Bootstrap's validation feedback
+          input.closest('form').classList.add('was-validated');
+          allValid = false;
+        }
+      });
+
+      if (allValid) {
+        current.closest('form').classList.remove('was-validated');
+        if (currentStep < steps.length - 1) {
+          showStep(currentStep + 1);
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll(".prev-step").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (currentStep > 0) {
+        showStep(currentStep - 1);
+      }
+    });
+  });
+
+  // Initial setup
+  showStep(0);
+});
+
+// --- Dynamic attachment fields for NDA Step 4 ---
+document.addEventListener('DOMContentLoaded', () => {
+  const addAttachmentBtnNda = document.getElementById('add-document-btn-nda');
+  const attachmentsContainerNda = document.getElementById('supporting-documents-container-nda');
+
+  if (addAttachmentBtnNda && attachmentsContainerNda) {
+    let attachmentCountNda = 1;
+
+    addAttachmentBtnNda.addEventListener('click', () => {
+      if (attachmentCountNda < 5) {
+        attachmentCountNda++;
+        const newAttachmentDiv = document.createElement('div');
+        newAttachmentDiv.classList.add('input-group', 'mb-2');
+        newAttachmentDiv.innerHTML = `
+          <input type="file" class="form-control" name="supporting_documents" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+          <button type="button" class="btn btn-outline-danger remove-attachment-btn" title="Remove"><i class="bi bi-trash-fill"></i></button>
+        `;
+        attachmentsContainerNda.appendChild(newAttachmentDiv);
+
+        if (attachmentCountNda === 5) {
+          addAttachmentBtnNda.style.display = 'none';
+        }
+      }
+    });
+
+    attachmentsContainerNda.addEventListener('click', (event) => {
+      const removeBtn = event.target.closest('.remove-attachment-btn');
+      if (removeBtn) {
+        removeBtn.closest('.input-group').remove();
+        attachmentCountNda--;
+        addAttachmentBtnNda.style.display = 'block';
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - LFMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <a href="{{ url_for('dashboard') }}" class="back-button"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+      <h2 class="mb-0 text-primary d-inline-block align-middle ms-2">Manage Users</h2>
+    </div>
+    <a href="{{ url_for('add_user') }}" class="btn btn-success"><i class="bi bi-plus-circle-fill me-2"></i>Add New User</a>
+  </div>
+  <p class="text-muted">Edit user details, roles, and access permissions.</p>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>View Access</th>
+              <th>Company</th>
+              <th>Location</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td>{{ u.user_id }}</td>
+              <td>{{ u.name }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.role | title }}</td>
+              <td>
+                {% if u.is_approved == 1 %}
+                  <span class="badge bg-success">Approved</span>
+                {% elif u.is_approved == 0 %}
+                  <span class="badge bg-warning text-dark">Not Approved</span>
+                {% elif u.is_approved == 2 %}
+                  <span class="badge bg-danger">Rejected</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.view_access == 'Yes' %}
+                  <span class="badge bg-info text-dark">Yes</span>
+                {% else %}
+                  <span class="badge bg-secondary">No</span>
+                {% endif %}
+              </td>
+              <td>{{ u.company }}</td>
+              <td>{{ u.location }}</td>
+              <td class="text-center">
+                <div class="btn-group" role="group" aria-label="User Actions">
+                  <a href="{{ url_for('edit_user', user_id=u.user_id) }}" class="btn btn-sm btn-primary" title="Edit User Details"><i class="bi bi-pencil-square"></i></a>
+                  
+                  <form method="POST" action="{{ url_for('reset_password', user_id=u.user_id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to reset the password for this user? A new password will be sent to their email.');">
+                    <button type="submit" class="btn btn-sm btn-info" title="Reset Password"><i class="bi bi-arrow-repeat"></i></button>
+                  </form>
+
+                  {% if u.is_approved == 1 %}
+                    <form method="POST" action="{{ url_for('lock_user', user_id=u.user_id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to lock this user?');">
+                        <button type="submit" class="btn btn-sm btn-warning" title="Lock User"><i class="bi bi-lock-fill"></i></button>
+                    </form>
+                  {% else %}
+                    <form method="POST" action="{{ url_for('unlock_user', user_id=u.user_id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to unlock this user?');">
+                        <button type="submit" class="btn btn-sm btn-success" title="Unlock User"><i class="bi bi-unlock-fill"></i></button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LFMS{% endblock %}
+
+{% block content %}
+
+<!-- Forms for user approval, placed outside the table for valid HTML -->
+{% if role == 'admin' and pending_users %}
+  {% for user in pending_users %}
+    <form method="POST" action="{{ url_for('approve_user') }}" id="approveForm-{{ user.user_id }}" onsubmit="return confirm('Approve this user with the selected role?');"></form>
+  {% endfor %}
+{% endif %}
+
+  <div class="container-fluid">
+    <h5 class="mb-4 text-primary">Dashboard</h5>
+    
+    {% if role == 'admin' %}
+      <!-- Admin View -->
+      {% if pending_users %}
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">User Approvals Pending ({{ pending_users|length }})</h6>
+          </div>
+          <div class="card-body">
+            <p>The following users have registered and are waiting for approval.</p>
+            <div class="table-responsive table-container">
+              <table class="table table-bordered table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Designation</th>
+                    <th>Department</th>
+                    <th>Assign Role</th>
+                    <th>View Access</th>
+                    <th colspan="2" class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for user in pending_users %}
+                  <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.designation }}</td>
+                    <td>{{ user.department }}</td>
+                    <td>
+                      <select name="role" class="form-select form-select-sm" required form="approveForm-{{ user.user_id }}">
+                        <option value="user" selected>User</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="legal_team">Legal Team</option>
+                        <option value="ceo">CEO</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="view_access" class="form-select form-select-sm" required form="approveForm-{{ user.user_id }}">
+                        <option value="Yes">Yes</option>
+                        <option value="No" selected>No</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input type="hidden" name="user_id" value="{{ user.user_id }}" form="approveForm-{{ user.user_id }}">
+                      <button type="submit" class="btn btn-info btn-sm w-100" form="approveForm-{{ user.user_id }}">Approve</button>
+                    </td>
+                    <td>
+                      <a href="{{ url_for('reject_user', user_id=user.user_id) }}" class="btn btn-danger btn-sm w-100" onclick="return confirm('Are you sure you want to reject this user?');">Reject</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info text-center">
+          <i class="bi bi-check-circle-fill me-2"></i>There are no users pending approval.
+        </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Admin Tools</h6>
+        </div>
+        <div class="card-body text-center">
+          <p class="text-muted">Manage existing users, edit details, and reset passwords.</p>
+          <a href="{{ url_for('manage_users') }}" class="btn btn-primary"><i class="bi bi-people-fill me-2"></i>Manage All Users</a>
+        </div>
+      </div>
+
+    {% else %}
+      <!-- View for Non-Admin Roles -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            {% if role == 'user' %}
+              My Requests
+            {% elif role in ['supervisor', 'ceo'] %}
+              Requests Pending Your Approval
+            {% elif role == 'legal_team' %}
+              Requests for Legal Processing
+            {% endif %}
+          </h6>
+        </div>
+        <div class="card-body">
+          {% if requests %}
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                  <tr class="text-center">
+                    <th>Request No</th>
+                    <th>Purpose of the Agreement</th>
+                    <th>Agreement Type</th>
+                    <th>Agreement With</th>
+                    <th>Value</th>
+                    <th>Requested On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for req in requests %}
+                  <tr class="text-center">
+                    <td>REQ-{{ req[0] }}</td> <!-- request_id -->
+                    <td>{{ req[2] }}</td> <!-- request_title (Purpose) -->
+                    <td>{{ req[27] | title }}</td> <!-- type_of_the_agreement -->
+                    <td>{{ req[28] }}</td> <!-- name_of_the_other_parties -->
+                    <td>{{ req[4] }}</td> <!-- document_value -->
+                    <td>{{ req[7] }}</td> <!-- created_at -->
+                    <td>
+                      {% if req[6] == 'supervisor_approval_pending' %}
+                        <span class="badge bg-warning text-dark">Supervisor Approval Pending</span>
+                      {% elif req[6] == 'ceo_approval_pending' %}
+                        <span class="badge bg-warning text-dark">CEO Approval Pending</span>
+                      {% elif req[6] in ['supervisor_approved', 'ceo_approved', 'legal_feedback_given'] %}
+                        <span class="badge bg-info">Legal Team Processing</span>
+                      {% elif req[6] == 'final_documents_avaiable' %}
+                        <span class="badge bg-success">Completed</span>
+                      {% elif req[6] == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                      {% else %}
+                        <span style="color: rgb(97, 7, 176);"class="badge">{{ req[6] }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Request Actions">
+                        <a href="{{ url_for('view_request', request_id=req[0]) }}" class="btn btn-sm btn-primary" title="View Details"><i class="bi bi-eye-fill"></i></a>
+
+                        {% if session['role'] == 'supervisor' and req[6] == 'supervisor_approval_pending' %}
+                          <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ req[0] }}" title="Approve"><i class="bi bi-check-circle-fill"></i></button>
+                          <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ req[0] }}" title="Reject"><i class="bi bi-x-circle-fill"></i></button>
+                        {% endif %}
+
+                        {% if session['role'] == 'ceo' and req[6] == 'ceo_approval_pending' %}
+                          <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#ceoApproveModal{{ req[0] }}" title="Approve"><i class="bi bi-check-circle-fill"></i></button>
+                          <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ req[0] }}_ceo" title="Reject"><i class="bi bi-x-circle-fill"></i></button>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center text-muted my-5">
+              <h6>
+                {% if role == 'user' %}
+                  <i class="bi bi-folder2-open"></i> No requests are currently available.
+                {% else %}
+                  <i class="bi bi-check2-circle"></i> No requests are currently pending your approval.
+                {% endif %}
+              </h6>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Modals for Supervisor -->
+      {% if session['role'] == 'supervisor' %}
+        {% for req in requests %}
+          {% if req[6] == 'supervisor_approval_pending' %}
+            <!-- Supervisor Approval Modal -->
+            <div class="modal fade" id="approveModal{{ req[0] }}" tabindex="-1" aria-labelledby="approveModalLabel{{ req[0] }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <form method="POST" action="{{ url_for('supervisor_approve', request_id=req[0]) }}">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="approveModalLabel{{ req[0] }}">Approval Note for REQ-{{ req[0] }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <textarea name="approval_note" class="form-control" placeholder="Enter approval note here..." maxlength="100" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-info">Submit Approval</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!-- Supervisor Reject Modal -->
+            <div class="modal fade" id="rejectModal{{ req[0] }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ req[0] }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <form method="post" action="{{ url_for('reject_request', request_id=req[0]) }}">
+                  <input type="hidden" name="role" value="supervisor" />
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="rejectModalLabel{{ req[0] }}">Reject Request REQ-{{ req[0] }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="reason{{ req[0] }}" class="form-label">Reason for Rejection</label>
+                        <textarea name="reason" id="reason{{ req[0] }}" class="form-control" required></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-danger">Submit Rejection</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <!-- Modals for CEO -->
+      {% if session['role'] == 'ceo' %}
+        {% for req in requests %}
+          {% if req[6] == 'ceo_approval_pending' %}
+            <!-- CEO Approval Modal -->
+            <div class="modal fade" id="ceoApproveModal{{ req[0] }}" tabindex="-1" aria-labelledby="ceoApproveModalLabel{{ req[0] }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <form method="POST" action="{{ url_for('ceo_approve', request_id=req[0]) }}">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="ceoApproveModalLabel{{ req[0] }}">CEO Approval Note for REQ-{{ req[0] }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <textarea name="ceo_approval_note" class="form-control" placeholder="Enter CEO approval note..." maxlength="100" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-info">Submit Approval</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!-- CEO Reject Modal -->
+            <div class="modal fade" id="rejectModal{{ req[0] }}_ceo" tabindex="-1" aria-labelledby="rejectModalLabel{{ req[0] }}_ceo" aria-hidden="true">
+              <div class="modal-dialog">
+                <form method="post" action="{{ url_for('reject_request', request_id=req[0]) }}">
+                  <input type="hidden" name="role" value="ceo" />
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="rejectModalLabel{{ req[0] }}_ceo">Reject Request REQ-{{ req[0] }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="reason{{ req[0] }}_ceo" class="form-label">Reason for Rejection</label>
+                        <textarea name="reason" id="reason{{ req[0] }}_ceo" class="form-control" required></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-danger">Submit Rejection</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  </div>
+{% endblock %}

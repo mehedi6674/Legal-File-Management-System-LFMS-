@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}View Request - LFMS{% endblock %}
+
+{% block head %}
+<style>
+  .detail-label { font-weight: 600; color: #555; }
+  .detail-value { color: #222; }
+  .section-card { margin-bottom: 1.5rem; }
+  .status-badge { font-size: 1rem; padding: 0.5em 0.9em; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="{{ url_for('dashboard') }}" class="back-button"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    <button class="btn btn-outline-primary btn-sm" onclick="printRequestDetails()">
+      <i class="bi bi-printer-fill"></i> Print
+    </button>
+  </div>
+
+  <!-- Request Header -->
+  <div class="card section-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Request REQ-{{ request.request_id }}: {{ request.request_title }}</h4>
+      <span>
+        {% if request.status == 'supervisor_approval_pending' %}
+          <span class="badge bg-warning text-dark status-badge">Supervisor Approval Pending</span>
+        {% elif request.status == 'ceo_approval_pending' %}
+          <span class="badge bg-warning text-dark status-badge">CEO Approval Pending</span>
+        {% elif request.status in ['supervisor_approved', 'ceo_approved', 'legal_feedback_given'] %}
+          <span class="badge bg-info status-badge">Legal Team Processing</span>
+        {% elif request.status == 'rejected' %}
+          <span class="badge bg-danger status-badge">Rejected</span>
+        {% elif request.status == 'final_documents_avaiable' %}
+          <span class="badge bg-success status-badge">Final Legal Document Available</span>
+        {% else %}
+          <span class="badge bg-dark status-badge">{{ request.status }}</span>
+        {% endif %}
+      </span>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4"><p><span class="detail-label">Requester:</span> {{ request.user_name }}</p></div>
+        <div class="col-md-4"><p><span class="detail-label">Requested On:</span> {{ request.created_at }}</p></div>
+        <div class="col-md-4"><p><span class="detail-label">Agreement Type:</span> {{ request.type_of_the_agreement | title }}</p></div>
+      </div>
+      {% if request.status in ['supervisor_approved', 'ceo_approved', 'legal_feedback_given', 'final_documents_avaiable'] and not request.rejected_by %}
+      <hr>
+      <div class="row">
+        <div class="col-12">
+          <p class="mb-0">
+            <span class="detail-label">Approval Status:</span>
+            {% if request.approved_by_ceo %}
+              Approved by CEO ({{ request.approved_by_ceo }}) on {{ request.ceo_approval_date.strftime('%Y-%m-%d') if request.ceo_approval_date else 'N/A' }}
+            {% elif request.approved_by_supervisor %}
+              Approved by Line Manager ({{ request.approved_by_supervisor }}) on {{ request.supervisor_approval_date.strftime('%Y-%m-%d') if request.supervisor_approval_date else 'N/A' }}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Main Details in Accordion -->
+  <div class="accordion" id="requestDetailsAccordion">
+
+    <!-- Basic Information -->
+    <div class="accordion-item section-card">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <i class="bi bi-info-circle-fill me-2"></i> Basic Information
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#requestDetailsAccordion">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col-md-6 mb-3"><span class="detail-label">Agreement With (Parties Name):</span><br>{{ request.name_of_the_other_parties }}</div>
+            <div class="col-md-6 mb-3"><span class="detail-label">Type of Organization:</span><br>{{ request.document_type | replace('_', ' ') | title }}</div>
+            <div class="col-md-6 mb-3"><span class="detail-label">Party’s TPDD Status:</span><br>{{ request.Partys_tpdd_status | title }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Purpose of the Agreement:</span><br>{{ request.request_title }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Scope of Work:</span><br>{{ request.scope_of_work }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Service Details / Description:</span><br>{{ request.description }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial & Commercial Terms -->
+    {% if request.type_of_the_agreement != 'nda' %}
+    <div class="accordion-item section-card">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <i class="bi bi-cash-coin me-2"></i> Financial & Commercial Terms
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#requestDetailsAccordion">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col-md-4 mb-3"><span class="detail-label">Total Document Value:</span><br>{{ request.document_value }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Effective Date:</span><br>{{ request.effective_date }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Tenure:</span><br>{{ request.tenure_value }} Months</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Amount to be Paid:</span><br>{{ request.amount_to_be_paid }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">AIT:</span><br>{{ request.ait }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">VAT:</span><br>{{ request.vat }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Other Costs:</span><br>{{ request.other_costs or 'N/A' }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Total Amount (incl. VAT & Tax):</span><br>{{ request.total_amount_including_vat_and_tax }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Payment Frequency:</span><br>{{ request.payment_frequency | replace('_', ' ') | title }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Advance Payment:</span><br>{{ request.advance_payment or 'N/A' }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Security Deposit:</span><br>{{ request.security_deposit or 'N/A' }} {{ request.currency }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Security Cheque / Bank Guarantee:</span><br>{{ request.security_cheque_or_bank_guarantee or 'N/A' }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Penalty Deduction Matrix:</span><br>{{ request.penalty_deduction_matrix_for_default or 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Clauses & Termination -->
+    <div class="accordion-item section-card">
+      <h2 class="accordion-header" id="headingThree">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          <i class="bi bi-file-earmark-ruled-fill me-2"></i> Clauses & Termination
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#requestDetailsAccordion">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col-md-4 mb-3"><span class="detail-label">Termination Notice Period:</span><br>{{ request.termination_notice_period }} Days</div>
+            <div class="col-md-8 mb-3"><span class="detail-label">Consequences of Termination:</span><br>{{ request.consequences_of_termination }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Assets to be Returned:</span><br>{{ request.assets_to_be_returned or 'N/A' }}</div>
+            <div class="col-md-6 mb-3"><span class="detail-label">Exclusivity:</span><br>{{ request.exclusivity or 'N/A' }}</div>
+            <div class="col-md-6 mb-3"><span class="detail-label">Goal Sheet:</span><br>{{ request.goal_sheet or 'N/A' }}</div>
+            <div class="col-md-12 mb-3"><span class="detail-label">Other Special Clauses:</span><br>{{ request.any_other_special_clause or 'N/A' }}</div>
+          </div>
+          <hr>
+          <h5>Notice Details</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3"><span class="detail-label">Notice Receiver Names:</span><br>{{ request.name_of_the_notice_receivers }}</div>
+            <div class="col-md-6 mb-3"><span class="detail-label">Designations of Receivers:</span><br>{{ request.designations_of_receivers }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Receiver Mobile No.:</span><br>{{ request.notice_receiver_mobile_no or 'N/A' }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Receiver Email:</span><br>{{ request.notice_receiver_email or 'N/A' }}</div>
+            <div class="col-md-4 mb-3"><span class="detail-label">Receiver Address:</span><br>{{ request.notice_receiver_address or 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attachments -->
+    <div class="accordion-item section-card">
+      <h2 class="accordion-header" id="headingFour">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          <i class="bi bi-paperclip me-2"></i> Attachments
+        </button>
+      </h2>
+      <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#requestDetailsAccordion">
+        <div class="accordion-body">
+          {% if not attachments and (not final_doc or not final_doc.final_file_path) %}
+            <p>No attachments found.</p>
+          {% else %}
+            {% if final_doc and final_doc.final_file_path %}
+              <h6 class="text-muted">Final Document</h6>
+              <ul class="list-group mb-3">
+                  {% set normalized_path = final_doc.final_file_path.replace('\\', '/') %}
+                  {% set filename = normalized_path.split('static/uploads/')[-1] %}
+                  <li class="list-group-item list-group-item-success d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('download_file', filename=filename) }}" download>
+                      <i class="bi bi-file-earmark-check-fill me-2"></i><strong>{{ filename }}</strong>
+                    </a>
+                    <span class="badge bg-success">Final Document</span>
+                  </li>
+              </ul>
+            {% endif %}
+
+            {% if attachments %}
+              {% if final_doc and final_doc.final_file_path %}<h6 class="text-muted mt-4">Other Attachments</h6>{% endif %}
+              <ul class="list-group">
+                {% for attach in attachments %}
+                  {% set normalized_path = attach.file_path.replace('\\', '/') %}
+                  {% set filename = normalized_path.split('static/uploads/')[-1] %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('download_file', filename=filename) }}" download><i class="bi bi-paperclip me-2"></i>{{ filename }}</a>
+                    {% if attach.attachment_type == 'initial_request' %}
+                      <span class="badge bg-primary">(Details)</span>
+                    {% elif attach.attachment_type == 'security_cheque' %}
+                      <span class="badge bg-warning text-dark">(Security Cheque / Bank Guarantee)</span>
+                    {% elif attach.attachment_type == 'supporting_document' %}
+                      <span class="badge bg-secondary">(Others)</span>
+                    {% else %}
+                      <span class="badge bg-info">{{ attach.attachment_type | replace('_', ' ') | title }}</span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback History -->
+    <div class="accordion-item section-card">
+      <h2 class="accordion-header" id="headingFive">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+          <i class="bi bi-chat-left-text-fill me-2"></i> Feedback History
+        </button>
+      </h2>
+      <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#requestDetailsAccordion">
+        <div class="accordion-body">
+          {% if feedbacks %}
+            {% for fb in feedbacks %}
+              <div class="card mb-3">
+                <div class="card-header {% if fb.feedback_type == 'legal' %}bg-light text-danger{% elif fb.feedback_type == 'user' %}bg-danger text-white{% else %}bg-light{% endif %}">
+                  <strong>{{ fb.feedback_type | title }} Feedback</strong> on {{ fb.submitted_at }}
+                </div>
+                <div class="card-body">
+                  <p>{{ fb.comment }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p>No feedback has been provided yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="card section-card">
+    <div class="card-body text-center">
+      {% if request.status == 'rejected' %}
+        <p class="text-muted mb-0">This request was rejected. No further actions can be taken.</p>
+      {% elif request.status == 'final_documents_avaiable' %}
+        {% if role == 'legal_team' %}
+          <!-- Reject Button & Modal for Legal Team -->
+          <button class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#rejectModalLegal"><i class="bi bi-x-circle-fill me-2"></i>Reject Request</button>
+        {% else %}
+          <p class="text-muted mb-0">This request is completed. No further actions can be taken.</p>
+        {% endif %}
+      {% else %} {# Status is pending, approved, feedback_given etc. #}
+        {% if role == 'user' %}
+          <a href="{{ url_for('user_feedback', request_id=request.request_id) }}" class="btn btn-primary"><i class="bi bi-plus-circle-fill me-2"></i>Add Feedback</a>
+        {% elif role == 'legal_team' %}
+          <a href="{{ url_for('legal_feedback', request_id=request.request_id) }}" class="btn btn-primary"><i class="bi bi-journal-plus me-2"></i>Add Legal Feedback</a>
+          <a href="{{ url_for('final_upload', request_id=request.request_id) }}" class="btn btn-success ms-2"><i class="bi bi-file-earmark-check-fill me-2"></i>Upload Final Document</a>
+          <!-- Reject Button & Modal for Legal Team -->
+          <button class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#rejectModalLegal"><i class="bi bi-x-circle-fill me-2"></i>Reject Request</button>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Reject Modal for Legal Team -->
+{% if role == 'legal_team' and request.status != 'rejected' %}
+<div class="modal fade" id="rejectModalLegal" tabindex="-1" aria-labelledby="rejectModalLabelLegal" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" action="{{ url_for('reject_request', request_id=request.request_id) }}">
+      <input type="hidden" name="role" value="legal_team" />
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectModalLabelLegal">Reject Request</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="reason_legal" class="form-label">Reason for Rejection</label>
+            <textarea name="reason" id="reason_legal" class="form-control" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Submit Rejection</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- Printable Area (Hidden) -->
+<div id="printable-area" style="display: none;">
+  <!-- Content for printing will be injected here by JS -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function printRequestDetails() {
+  // Gather all details from the page
+  let content = `
+    <h2>Request Details: REQ-{{ request.request_id }}</h2>
+    <table class="table table-bordered">
+      <tbody>
+        <tr><td class="detail-label">Request Title</td><td>{{ request.request_title }}</td></tr>
+        <tr><td class="detail-label">Requester Name</td><td>{{ request.user_name }}</td></tr>
+        <tr><td class="detail-label">Request Status</td><td>{{ request.status | replace('_', ' ') | title }}</td></tr>
+        <tr><td class="detail-label">Agreement With</td><td>{{ request.name_of_the_other_parties }}</td></tr>
+        <tr><td class="detail-label">Organization Type</td><td>{{ request.document_type | replace('_', ' ') | title }}</td></tr>
+        <tr><td class="detail-label">TPDD Status</td><td>{{ request.Partys_tpdd_status | title }}</td></tr>
+        <tr><td class="detail-label">Purpose</td><td>{{ request.request_title }}</td></tr>
+        <tr><td class="detail-label">Scope of Work</td><td>{{ request.scope_of_work }}</td></tr>
+        {% if request.type_of_the_agreement != 'nda' %}
+        <tr><td class="detail-label">Total Value</td><td>{{ request.document_value }} {{ request.currency }}</td></tr>
+        <tr><td class="detail-label">Tenure</td><td>{{ request.tenure_value }} Months</td></tr>
+        <tr><td class="detail-label">Effective Date</td><td>{{ request.effective_date }}</td></tr>
+        <tr><td class="detail-label">Payment Frequency</td><td>{{ request.payment_frequency | replace('_', ' ') | title }}</td></tr>
+        {% endif %}
+        <tr><td class="detail-label">Termination Notice</td><td>{{ request.termination_notice_period }} Days</td></tr>
+        <tr><td class="detail-label">Termination Consequences</td><td>{{ request.consequences_of_termination }}</td></tr>
+      </tbody>
+    </table>
+  `;
+
+  var printWindow = window.open('', '_blank');
+  printWindow.document.open();
+  printWindow.document.write(`
+    <html>
+    <head>
+      <title>Print Request Details</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+      <style>
+        body {
+          padding: 1.5rem;
+        }
+        .system-title {
+          text-align: center;
+          font-size: 22px;
+          font-weight: bold;
+          margin: 10px 0 30px 0;
+        }
+        .detail-label {
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <img src="https://cdn.shvenergy.com/-/media/sites/shvenergy/bu-map/logos-to-use/petromaxlpg-horizontal_primary_rgb.png?rev=dbaeec85acca42a3804aef0f8346f92c" alt="Logo" style="display:block; margin:0 auto 20px; max-width:200px;">
+      <div class="system-title">Legal File Management System</div>
+      <div class="container-fluid">
+        ${content}
+      </div>
+      <script>
+        window.onload = function() {
+          window.print();
+          window.onafterprint = function() {
+            window.close();
+          };
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+</script>
+{% endblock %}

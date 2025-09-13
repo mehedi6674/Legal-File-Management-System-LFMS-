@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Final Document Upload - LFMS{% endblock %}
+
+{% block head %}
+<style>
+  .required::after {
+    content: " *"; /* Adds an asterisk after the label */
+    color: red;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="mb-0">Upload Final Document for Request #{{ request[0] }}</h4>
+    </div>
+    <div class="card-body p-4">
+      <table class="table table-bordered mb-4">
+        <tbody>
+          <tr><th scope="row" class="w-25">Request Title</th><td>{{ request[2] }}</td></tr>
+          <tr><th scope="row">Document Type</th><td>{{ request[3] }}</td></tr>
+          <tr><th scope="row">Document Value</th><td>{{ request[4] }}</td></tr>
+          <tr><th scope="row">Description</th><td>{{ request[5] }}</td></tr>
+          <tr><th scope="row">Status</th><td>{{ request[6] }}</td></tr>
+        </tbody>
+      </table>
+
+      <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label for="validity_start" class="form-label required">Document Validity Start Date</label>
+          <input type="date" id="validity_start" name="validity_start" class="form-control" required />
+          <div class="invalid-feedback">Please select the validity start date.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="validity_end" class="form-label required">Document Validity End Date</label>
+          <input type="date" id="validity_end" name="validity_end" class="form-control" required />
+          <div class="invalid-feedback">Please select the validity end date.</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label required">Final Document Attachment</label>
+          <input type="file" class="form-control" id="attachment1" name="final_file" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" required />
+          <div class="form-text">You can not upload attachments more than 2MB</div>
+          <div class="invalid-feedback">Please upload the final document file.</div>
+        </div>
+
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" name="confirmation1" id="confirmation1" required>
+          <label class="form-check-label required" for="confirmation1">I have checked the full document.</label>
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="confirmation2" id="confirmation2" required>
+          <label class="form-check-label required" for="confirmation2">All legal formalities have been completed.</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Final Document</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Bootstrap 5 form validation
+  (() => {
+    'use strict'
+
+    const forms = document.querySelectorAll('form')
+
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>{% endblock %}

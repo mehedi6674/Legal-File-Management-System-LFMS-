@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}All Legal Documents - LFMS{% endblock %}
+
+{% block head %}
+<style>
+  .table-container {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  .expired-row {
+    background-color: #fbebeb !important; /* Lighter red for expired rows */
+    opacity: 0.8;
+  }
+  .near-expiry-badge {
+    background-color: var(--warning-color) !important;
+    color: #212529;
+  }
+  .expired-badge {
+    background-color: var(--danger-color) !important;
+  }
+  .active-badge {
+    background-color: var(--info-color) !important;
+    color: white;
+  }
+  .separator-row td {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  /* Smaller rows for a compact view */
+  .table td, .table th {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <a href="{{ url_for('dashboard') }}" class="back-button"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+  <h2 class="mb-4 text-primary">All Final Legal Documents</h2>
+
+  <div class="table-container">
+    <div class="d-flex justify-content-end mb-3">
+      <input type="text" id="globalSearch" class="form-control w-auto" placeholder="🔍 Search all columns..." />
+    </div>
+
+    {% if documents %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Request ID</th>
+              <th>Document Title</th>
+              <th>Requested By</th>
+              <th>Submitted On</th>
+              <th>Validity Start</th>
+              <th>Validity End</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+            <tr class="filter-row">
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><input type="text" class="form-control form-control-sm" placeholder="Filter..." /></th>
+              <th><!-- Status filter --></th>
+              <th><!-- Actions no filter --></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set expired_section_shown = false %}
+            {% for doc in documents %}
+              {% set is_expired = doc.validity_end and doc.validity_end < current_date %}
+              
+              {% if is_expired and not expired_section_shown %}
+                <tr class="separator-row no-filter">
+                  <td colspan="8">Expired Documents</td>
+                </tr>
+                {% set expired_section_shown = true %}
+              {% endif %}
+
+              <tr class="{{ 'expired-row' if is_expired }}">
+                <td>REQ-{{ doc.request_id }}</td>
+                <td>{{ doc.request_title }}</td>
+                <td>{{ doc.user_name }}</td>
+                <td>{{ doc.final_submitted_at.strftime('%Y-%m-%d') if doc.final_submitted_at else 'N/A' }}</td>
+                <td>{{ doc.validity_start or 'N/A' }}</td>
+                <td>{{ doc.validity_end or 'N/A' }}</td>
+                <td>
+                  {% if is_expired %}
+                    <span class="badge expired-badge">Expired</span>
+                  {% else %}
+                    {% if doc.validity_end %}
+                      {% set days_left = (doc.validity_end - current_date).days %}
+                      {% if days_left <= 30 %}
+                        <span class="badge near-expiry-badge" data-bs-toggle="tooltip" title="Expires in {{ days_left }} days">Near Expiry</span>
+                      {% else %}
+                        <span class="badge active-badge">Active</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="badge active-badge">Active</span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="btn-group" role="group" aria-label="Document Actions">
+                    <a href="{{ url_for('view_request', request_id=doc.request_id) }}" class="btn btn-sm btn-outline-primary" title="View Request Details"><i class="bi bi-eye-fill"></i></a>
+                    {% if doc.final_document %}
+                      {% set filename = doc.final_document.replace('\\', '/').split('static/uploads/')[-1] %}
+                      {% if is_expired %}
+                        <button class="btn btn-sm btn-secondary" disabled title="Document Expired"><i class="bi bi-download"></i></button>
+                      {% else %}
+                        <a href="{{ url_for('download_file', filename=filename) }}" download class="btn btn-sm btn-primary" title="Download Document"><i class="bi bi-download"></i></a>
+                      {% endif %}
+                    {% else %}
+                      <button class="btn btn-sm btn-secondary" disabled><i class="bi bi-download"></i></button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center text-muted my-5">
+        <h4><i class="bi bi-folder-x"></i> No final documents available.</h4>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const globalSearch = document.getElementById('globalSearch');
+    const filters = document.querySelectorAll('.filter-row input');
+    const rows = document.querySelectorAll('tbody tr:not(.no-filter)');
+
+    function filterTable() {
+      const globalFilter = globalSearch.value.toLowerCase();
+      const columnFilters = Array.from(document.querySelectorAll('.filter-row input')).map(f => f.value.toLowerCase());
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const matchesGlobal = !globalFilter || row.textContent.toLowerCase().includes(globalFilter);
+        
+        const matchesColumns = columnFilters.every((filter, index) => {
+          const cell = cells[index];
+          return !filter || (cell && cell.textContent.toLowerCase().includes(filter));
+        });
+
+        row.style.display = (matchesGlobal && matchesColumns) ? '' : 'none';
+      });
+    }
+
+    globalSearch.addEventListener('keyup', filterTable);
+    document.querySelectorAll('.filter-row input').forEach(input => input.addEventListener('keyup', filterTable));
+
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+{% endblock %}

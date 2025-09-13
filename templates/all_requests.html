@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}All Requests - Legal Team{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .table-container {
+    max-height: 75vh;
+    overflow: auto;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+  }
+
+  #requestTableMain thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  #requestTableMain thead tr:first-child th {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  #requestTableMain thead tr.filter-row th {
+    background-color: #f1f3f5; /* Lighter background for filters */
+  }
+
+  .filter-input {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.75rem;
+  }
+
+  #requestTableMain th, #requestTableMain td {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="{{ url_for('dashboard') }}" class="back-button"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">All Requests</h4>
+      <div class="d-flex gap-2">
+        <input type="text" id="globalSearch" class="form-control form-control-sm" placeholder="🔍 Search All..." style="width: 250px;" />
+        <button id="exportExcelBtn" class="btn btn-light btn-sm" title="Export Filtered Table to Excel">
+          <i class="bi bi-file-earmark-excel-fill me-1"></i> Export
+        </button>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-container">
+        <table class="table table-bordered table-hover table-striped" id="requestTableMain">
+          <thead>
+            <tr>
+              {% for column in requests[0].keys() if column != 'description' %}
+                <th>{{ column.replace('_', ' ').title() }}</th>
+              {% endfor %}
+            </tr>
+            <tr class="filter-row">
+              {% for column in requests[0].keys() if column != 'description' %}
+                <th><input class="filter-input" type="text" placeholder="Filter {{ column.replace('_', ' ').title() }}"></th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody id="requestTable">
+            {% for req in requests %}
+            <tr class="request-row" data-id="{{ req.request_id }}">
+              {% for key, value in req.items() %}
+                {% if key != 'description' %}
+                  <td title="{{ value }}">{{ value or '' }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  const filters = document.querySelectorAll('.filter-input');
+  const rows = document.querySelectorAll('#requestTable tr');
+  const globalSearch = document.getElementById('globalSearch');
+  const exportExcelBtn = document.getElementById('exportExcelBtn');
+  const table = document.getElementById('requestTableMain');
+
+  function filterTable() {
+    const filterValues = Array.from(filters).map(input => input.value.toLowerCase());
+    rows.forEach(row => {
+      // Ensure we only select direct child 'td' elements to avoid nested table issues.
+      const cells = Array.from(row.children).filter(child => child.tagName === 'TD');
+      if (cells.length === 0) {
+        return; // Skip if no cells found
+      }
+      const matchesFilters = filterValues.every((val, i) => cells[i].textContent.toLowerCase().includes(val));
+      const matchesGlobal = !globalSearch.value || row.textContent.toLowerCase().includes(globalSearch.value.toLowerCase());
+      row.style.display = (matchesFilters && matchesGlobal) ? '' : 'none';
+    });
+  }
+
+  filters.forEach(input => input.addEventListener('keyup', filterTable));
+  globalSearch.addEventListener('keyup', filterTable);
+
+  exportExcelBtn.addEventListener('click', () => {
+    const wb = XLSX.utils.book_new();
+    wb.Props = { Title: "Filtered Requests", CreatedDate: new Date() };
+    wb.SheetNames.push("Requests");
+
+    const wsData = [];
+    const headerCells = table.querySelectorAll('thead tr:first-child th');
+    const headers = Array.from(headerCells).map(th => th.textContent.trim());
+    wsData.push(headers);
+
+    rows.forEach(row => {
+      if (row.style.display !== 'none') {
+        const rowData = Array.from(row.querySelectorAll('td')).map(td => td.innerText.trim());
+        wsData.push(rowData);
+      }
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    wb.Sheets["Requests"] = ws;
+    XLSX.writeFile(wb, 'Filtered_Requests.xlsx');
+  });
+
+  // Double-click navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.request-row').forEach(row => {
+      row.addEventListener('dblclick', () => {
+        const requestId = row.getAttribute('data-id');
+        if (requestId) window.location.href = `/request/${requestId}`;
+      });
+    });
+  });
+</script>
+{% endblock %}

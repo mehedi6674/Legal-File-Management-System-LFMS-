@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Approval - LFMS{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <a href="{{ url_for('dashboard') }}" class="back-button"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    <h2 class="mb-3 text-primary">Admin User Approval</h2>
+    <p class="text-muted">Approve registered users so they can log in and participate in the system.</p>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive table-container">
+          <table class="table table-bordered table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Assign Role</th>
+                <th>View Access</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if users %}
+                {% for user in users %}
+                <tr>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.designation }}</td>
+                  <td>{{ user.department }}</td>
+                  <form method="POST" action="{{ url_for('approve_user') }}" onsubmit="return confirm('Approve this user with the selected role and access?');">
+                    <input type="hidden" name="user_id" value="{{ user.user_id }}">
+                    <td>
+                      <select name="role" class="form-select form-select-sm" required>
+                        <option value="user" selected>User</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="legal_team">Legal Team</option>
+                        <option value="ceo">CEO</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="view_access" class="form-select form-select-sm" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No" selected>No</option>
+                      </select>
+                    </td>
+                    <td class="text-center">
+                      <button type="submit" class="btn btn-info btn-sm me-2"><i class="bi bi-check-lg"></i> Approve</button>
+                      <a href="{{ url_for('reject_user', user_id=user.user_id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this user?');"><i class="bi bi-x-lg"></i> Reject</a>
+                    </td>
+                  </form>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted">No users are currently pending approval.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
